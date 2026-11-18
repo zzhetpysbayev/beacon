@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Contacts{% endblock %}
+{% block content %}
+<div class="card">
+  <h2 style="margin-top:0">Alert contacts</h2>
+  <p class="muted">A contact is a Telegram chat (private or group) where the bot sends alerts. Create a contact, open the link, and confirm the binding in Telegram.</p>
+  {% if not bot_configured %}
+    <div class="errors">TELEGRAM_BOT_USERNAME is not set, so binding is unavailable.</div>
+  {% endif %}
+  {% if contacts %}
+  <table>
+    <thead><tr><th>Name</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for c in contacts %}
+      <tr>
+        <td>{{ c.name }}</td>
+        <td>
+          {% if c.verified %}<span class="badge up">Connected</span>
+          {% else %}<span class="badge unknown">Waiting for binding</span>{% endif %}
+        </td>
+        <td>
+          {% if not c.verified and c.bind_code %}
+            <div class="muted" style="font-size:13px">Send this to the bot:</div>
+            <div class="code" id="cmd-{{ c.id }}">/start {{ c.bind_code }}</div>
+            <button class="btn" type="button" onclick="copyCmd('cmd-{{ c.id }}', this)">Copy</button>
+            {% if c.bind_link %}<a href="{{ c.bind_link }}" target="_blank" rel="noopener">Open in Telegram</a>{% endif %}
+          {% endif %}
+          {% if user.role == "owner" %}
+          <form class="inline" method="post" action="/contacts/{{ c.id }}/delete"
+                onsubmit="return confirm('Delete this contact?')">
+            <button class="btn danger" type="submit">Delete</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="muted">No contacts yet.</p>
+  {% endif %}
+</div>
+
+{% if user.role == "owner" %}
+<div class="card" style="max-width:520px">
+  <h3 style="margin-top:0">New contact</h3>
+  <form method="post" action="/contacts">
+    <div class="field">
+      <label for="name">Name</label>
+      <input id="name" name="name" type="text" maxlength="100" required placeholder="For example, Operations team">
+    </div>
+    <button class="btn primary" type="submit">Create</button>
+  </form>
+</div>
+{% endif %}
+<script>
+function copyCmd(id, btn) {
+  var text = document.getElementById(id).textContent;
+  var done = function () { btn.textContent = 'Copied'; };
+  if (navigator.clipboard) { navigator.clipboard.writeText(text).then(done); }
+  else { var r = document.createRange(); r.selectNodeContents(document.getElementById(id));
+         var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r); document.execCommand('copy'); done(); }
+}
+</script>
+{% endblock %}

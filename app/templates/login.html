@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Log in{% endblock %}
+{% block content %}
+<div class="card login">
+  <h2 style="margin-top:0">Log in</h2>
+  {% if error %}<div class="errors">{{ error }}</div>{% endif %}
+  <form method="post" action="/login">
+    <div class="field">
+      <label for="username">Username</label>
+      <input id="username" name="username" type="text" required autofocus autocomplete="username">
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" required autocomplete="current-password">
+    </div>
+    <button class="btn primary" type="submit" style="width:100%">Log in</button>
+  </form>
+</div>
+{% endblock %}

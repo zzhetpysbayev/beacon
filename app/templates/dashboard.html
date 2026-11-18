@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Monitors{% endblock %}
+{% block content %}
+<div class="grid">
+  <div class="card stat"><div class="num">{{ summary.total }}</div><div class="label">Total monitors</div></div>
+  <div class="card stat"><div class="num" style="color:var(--up)">{{ summary.up }}</div><div class="label">Up</div></div>
+  <div class="card stat"><div class="num" style="color:var(--down)">{{ summary.down }}</div><div class="label">Down</div></div>
+  <div class="card stat"><div class="num">{{ summary.paused }}</div><div class="label">Paused</div></div>
+</div>
+
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <h2 style="margin:0;font-size:18px">Monitors</h2>
+    <a class="btn primary" href="/monitors/new">+ Add monitor</a>
+  </div>
+  {% if monitors %}
+  <table>
+    <thead>
+      <tr><th>Status</th><th>Name</th><th>Uptime 24 h</th><th>Response</th><th>Last check</th><th>SSL, days</th></tr>
+    </thead>
+    <tbody>
+    {% for m in monitors %}
+      <tr>
+        <td><span class="badge {{ m.state }}">{{ m.state_label }}</span></td>
+        <td>
+          <a href="/monitors/{{ m.id }}"><strong>{{ m.name }}</strong></a>
+          <div class="muted" style="font-size:13px">{{ m.url }}</div>
+        </td>
+        <td>{{ m.uptime_24h|pct }}</td>
+        <td>{{ m.last_response_ms|ms }}</td>
+        <td>{{ m.last_checked_at|dt }}</td>
+        <td>
+          {% if m.ssl_days is none %}-
+          {% elif m.ssl_days <= warn_days %}<span class="warn">{{ m.ssl_days }}</span>
+          {% else %}{{ m.ssl_days }}{% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="muted">No monitors yet. Add your first one.</p>
+  {% endif %}
+</div>
+{% endblock %}

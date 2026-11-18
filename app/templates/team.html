@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Team{% endblock %}
+{% block content %}
+{% if new_link %}
+<div class="card">
+  <h3 style="margin-top:0">Invitation created</h3>
+  <p class="muted">Send this link to your colleague. It is valid for a limited time and can be used once.</p>
+  <div class="code">{{ new_link }}</div>
+</div>
+{% endif %}
+
+<div class="card">
+  <h2 style="margin-top:0">Members</h2>
+  <table>
+    <thead><tr><th>Username</th><th>Role</th></tr></thead>
+    <tbody>
+    {% for m in members %}
+      <tr><td>{{ m.username }}</td><td>{{ "owner" if m.role == "owner" else "member" }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if user.role == "owner" %}
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <h2 style="margin:0;font-size:18px">Invitations</h2>
+    <form class="inline" method="post" action="/invites">
+      <button class="btn primary" type="submit">Create invitation</button>
+    </form>
+  </div>
+  {% if invites %}
+  <table>
+    <thead><tr><th>Created</th><th>Valid until</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for i in invites %}
+      <tr>
+        <td>{{ i.created_at|dt }}</td>
+        <td>{{ i.expires_at|dt }}</td>
+        <td>{% if i.used_at %}used{% else %}unused{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="muted">No invitations yet.</p>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

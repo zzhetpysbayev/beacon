@@ -1,0 +1,35 @@
+# Local development stack: Beacon plus PostgreSQL.
+# Usage: cp .env.example .env, fill in SECRET_KEY, then: docker compose up --build
+services:
+  app:
+    build: .
+    env_file: .env
+    environment:
+      # Overrides DATABASE_URL from .env so the app talks to the bundled database.
+      DATABASE_URL: postgresql://beacon:beacon@db:5432/beacon
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: beacon
+      POSTGRES_PASSWORD: beacon
+      POSTGRES_DB: beacon
+    ports:
+      # Bound to localhost only, for local tools and tests.
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U beacon -d beacon"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:

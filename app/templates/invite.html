@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Invitation{% endblock %}
+{% block content %}
+<div class="card login">
+  {% if not invite %}
+    <h2 style="margin-top:0">Invitation is invalid</h2>
+    <p class="muted">The link has expired or was already used. Ask an organization owner for a new one.</p>
+    <a class="btn" href="/login">Go to login</a>
+  {% else %}
+    <h2 style="margin-top:0">Join {{ invite.org_name }}</h2>
+    {% if error %}<div class="errors">{{ error }}</div>{% endif %}
+    <form method="post" action="/invite/{{ invite.token }}">
+      <div class="field">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" required minlength="3" maxlength="64" autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="password">Password (at least 8 characters)</label>
+        <input id="password" name="password" type="password" required minlength="8" autocomplete="new-password">
+      </div>
+      <div class="field">
+        <label for="password2">Repeat password</label>
+        <input id="password2" name="password2" type="password" required minlength="8" autocomplete="new-password">
+      </div>
+      <button class="btn primary" type="submit" style="width:100%">Create account</button>
+    </form>
+  {% endif %}
+</div>
+{% endblock %}
